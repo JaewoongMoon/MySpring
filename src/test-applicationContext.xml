@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	
+	<!-- DB / DAO -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+		<property name="driverClass" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3307/springbook?characterEncoding=UTF-8" />
+		<property name="username" value="root" />
+		<property name="password" value="" />
+	</bean>
+	
+	<bean id="userDao" class="springbook.user.dao.UserDaoJdbc">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!--  SERVICE -->
+
+	<bean id="userService" class="springbook.user.service.UserServiceImpl">
+		<property name="userDao" ref="userDao" />
+		<property name="mailSender" ref="mailSender" />
+	</bean>
+	<bean id="mailSender" class="springbook.user.service.DummyMailSender">
+	</bean>
+	<bean id="testUserService" class="springbook.user.service.UserServiceTest$TestUserServiceImpl"
+		parent="userService"> <!-- 프로퍼티 정의를 포함해서 userService빈의 설정을 상속받음.  -->
+	</bean>
+	
+	<!--  TRANSACTION -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<bean id="transactionAdvice" class="springbook.user.service.TransactionAdvice">
+		<property name="transactionManager" ref="transactionManager" />
+	</bean>
+	
+	<!-- PointCut -->
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
+	
+	<bean id="transactionPointcut" class="springbook.user.service.NameMatchClassMethodPointcut">
+		<property name="mappedClassName" value="*ServiceImpl" /> <!-- 클래스 이름 패턴  -->
+		<property name="mappedName" value="upgrade*" /> <!-- 메소드 이름 패턴  -->
+	</bean>
+		<bean id="transactionAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
+		<property name="advice" ref="transactionAdvice" />
+		<property name="pointcut" ref="transactionPointcut" />
+	</bean>
+</beans>
