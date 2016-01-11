@@ -27,7 +27,7 @@ public class UserDaoTest {
 	@Autowired
 	ApplicationContext context;
 	
-	private UserDao dao; 
+	private UserDao dao;
 	
 	private User user1;
 	private User user2;
@@ -58,6 +58,7 @@ public class UserDaoTest {
 		User userget2 = dao.get(user2.getId());
 		checkSameUser(userget2, user2);
 	}
+	
 
 	@Test(expected=EmptyResultDataAccessException.class)
 	public void getUserFailure() throws SQLException {
