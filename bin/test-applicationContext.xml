@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+			http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+			http://www.springframework.org/schema/aop
+			http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+			http://www.springframework.org/schema/context
+			http://www.springframework.org/schema/context/spring-context-3.0.xsd
+			http://www.springframework.org/schema/tx
+			http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+	
+	<tx:annotation-driven />
+	
+	<context:annotation-config /> <!-- 코드의 애노테이션을 이용해서 부가적인 빈 설정 또는 초기화 작업을 해주는 후처리기 등록 -->
+	
+	<!-- DB / DAO -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+		<property name="driverClass" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/springbook?characterEncoding=UTF-8" />
+		<property name="username" value="root" />
+		<property name="password" value="ted0201" />
+	</bean>
+	
+	<bean id="userDao" class="springbook.user.dao.UserDaoJdbc">
+		<property name="dataSource" ref="dataSource" />
+		<property name="sqlService" ref="sqlService" />
+	</bean>
+	
+	<bean id="sqlService" class="springbook.user.sqlservice.OxmSqlService">
+		<property name="unmarshaller" ref="unmarshaller"  />
+		<!-- <property name="sqlmap" value="classpath:springbook/user/dao/sqlmap.xml" /> -->
+		<property name="sqlRegistry" ref="sqlRegistry" />		
+	</bean>
+	<bean id="unmarshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+		<property name="contextPath" value="springbook.user.sqlservice.jaxb" />
+	</bean>
+	<bean id="sqlRegistry" class="springbook.user.sqlservice.updatable.ConcurrentHashMapSqlRegistry"></bean>
+	
+	
+	<!--  SERVICE -->
+	<bean id="userService" class="springbook.user.service.UserServiceImpl">
+		<property name="userDao" ref="userDao" />
+		<property name="mailSender" ref="mailSender" />
+	</bean>
+	<bean id="mailSender" class="springbook.user.service.DummyMailSender">
+	</bean>
+	<bean id="testUserService" class="springbook.user.service.UserServiceTest$TestUserServiceImpl"
+		parent="userService"> <!-- 프로퍼티 정의를 포함해서 userService빈의 설정을 상속받음.  -->
+	</bean>
+	
+	<!--  TRANSACTION -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<bean id="transactionAdvice" class="springbook.user.service.TransactionAdvice">
+		<property name="transactionManager" ref="transactionManager" />
+	</bean>
+	
+	<!-- PointCut -->
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
+	
+	<bean id="transactionPointcut" class="springbook.user.service.NameMatchClassMethodPointcut">
+		<property name="mappedClassName" value="*ServiceImpl" /> <!-- 클래스 이름 패턴  -->
+		<property name="mappedName" value="upgrade*" /> <!-- 메소드 이름 패턴  -->
+	</bean>
+		<bean id="transactionAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
+		<property name="advice" ref="transactionAdvice" />
+		<property name="pointcut" ref="transactionPointcut" />
+	</bean>
+</beans>
