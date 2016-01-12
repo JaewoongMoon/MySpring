@@ -46,7 +46,6 @@ public class OxmSqlService implements SqlService{
 		this.baseSqlService.loadSql();
 	}
 	
-	@Override
 	public String getSql(String key) throws SqlRetrievalFailureException {
 		return this.baseSqlService.getSql(key);
 	}
@@ -63,7 +62,6 @@ public class OxmSqlService implements SqlService{
 			this.unmarshaller = unmarshaller;
 		}
 		
-		@Override
 		public void read(SqlRegistry sqlRegistry) {
 			
 			try{

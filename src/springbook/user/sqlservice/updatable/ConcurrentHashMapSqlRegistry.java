@@ -11,7 +11,6 @@ public class ConcurrentHashMapSqlRegistry implements UpdatableSqlRegistry {
 	
 	private Map<String, String> sqlMap = new ConcurrentHashMap<String, String>();
 	
-	@Override
 	public String findSql(String key) throws SqlNotFoundException {
 		String sql = sqlMap.get(key);
 		if(sql == null)
@@ -19,12 +18,10 @@ public class ConcurrentHashMapSqlRegistry implements UpdatableSqlRegistry {
 		return sql;
 	}
 	
-	@Override
 	public void registerSql(String key, String sql) {
 		sqlMap.put(key, sql);
 	}
 	
-	@Override
 	public void updateSql(Map<String, String> sqlmap) throws SqlUpdateFailureException {
 		
 		for(Map.Entry<String, String> entry : sqlmap.entrySet()){
@@ -32,7 +29,6 @@ public class ConcurrentHashMapSqlRegistry implements UpdatableSqlRegistry {
 		}
 	}
 	
-	@Override
 	public void updateSql(String key, String sql) throws SqlUpdateFailureException {
 
 		if(sqlMap.get(key) == null){

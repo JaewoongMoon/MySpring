@@ -11,7 +11,6 @@ public class SimpleSqlService implements SqlService {
 		this.sqlMap = sqlMap;
 	}
 
-	@Override
 	public String getSql(String key) throws SqlRetrievalFailureException {
 		String sql = sqlMap.get(key);
 		if(sql == null)
