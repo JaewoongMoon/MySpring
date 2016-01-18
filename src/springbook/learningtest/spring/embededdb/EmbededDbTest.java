@@ -52,5 +52,4 @@ public class EmbededDbTest {
 		assertThat(template.queryForInt("select count(*) from sqlmap"), is(3));
 	}
 	
-	
 }

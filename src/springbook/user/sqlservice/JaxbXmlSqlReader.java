@@ -20,7 +20,6 @@ public class JaxbXmlSqlReader implements SqlReader {
 		this.sqlmapFile = sqlmapFile;
 	}
 	
-	@Override
 	public void read(SqlRegistry sqlRegistry) {
 		String contextPath = Sqlmap.class.getPackage().getName();
 		try{
